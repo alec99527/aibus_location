@@ -34,9 +34,6 @@
         </meta-data>
         -->
         <service android:name="com.amap.api.location.APSService" />
-        <service
-            android:name=".LocationService"
-            android:exported="false" />
 
     </application>
 

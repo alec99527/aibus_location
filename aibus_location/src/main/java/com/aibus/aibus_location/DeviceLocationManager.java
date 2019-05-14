@@ -8,95 +8,136 @@ import android.content.Context;
 import android.graphics.Color;
 import android.util.Log;
 
-import com.aibus.aibus_location.data.GpsBean;
+import com.aibus.aibus_location.data.GpsData;
 import com.amap.api.location.AMapLocation;
 import com.amap.api.location.AMapLocationListener;
 
-
+/**
+ * 封装高德地图的位置服务，对外提供统一的接口
+ * 单列模式，
+ */
 public class DeviceLocationManager implements AMapLocationListener {
     private static final String TAG = "DeviceLocationManager";
     private Context mContext;
-    private int interval = 10;
+    private static LocationHelper locationHelper;
     private Boolean mockLocationEnable = false;
-    private GpsBean mockGps;
+    private Boolean naviEmulatorEnable = false;
+    private GpsData mockGps;
     private LocationListener locationListener;
+    private static DeviceLocationManager instance;
 
-    public DeviceLocationManager() {
+    private DeviceLocationManager(Context context) {
+        mContext = context;
+
     }
 
-    public int getInterval() {
-        return interval;
+    public static DeviceLocationManager getInstance(Context context) {
+        if (instance == null)
+            instance = new DeviceLocationManager(context.getApplicationContext());
+        return instance;
     }
 
     public void setInterval(int interval) {
-        this.interval = interval;
+        locationHelper.setInterval(interval);
     }
 
-    public void init(Context context) {
-        mContext = context;
+    public void init() {
+        SharedPreferenceUtil.initSp(mContext, "DeviceLocationManager");
 
-        SharedPreferenceUtil.initSp(context, "DeviceLocationManager");
+//        mockLocationEnable = LocationConfig.getMockLocationStatus();
+//        naviEmulatorEnable = LocationConfig.getNaviEmulatorStatus();
 
         locationHelper = LocationHelper.getInstance();
         locationHelper.initLocation(mContext, this);
     }
 
     /**
-     * 定位间隔
-     *
-     * @param time
+     * 设置模拟定位的GPS数据
+     * @param gps
      */
-    public void setInternal(long time) {
-        locationHelper.setInterval(time);
-    }
-
-    public void setMockLocationGps(GpsBean gps) {
+    public void setMockLocationGps(GpsData gps) {
         mockGps = gps;
     }
 
+    /**
+     * 是否使能模拟定位功能
+     * @param mock
+     */
     public void setMockLocationEnable(Boolean mock) {
         mockLocationEnable = mock;
+        LocationConfig.enableMockLocation(mock);
     }
 
-    public void setLocationListener(LocationListener listener){
-        locationListener = listener;
-
-    }
     /**
-     * 定位回调方法
+     * 设置模拟导航
+     * @param type
+     */
+    public void setNaviEmulatorEnable(Boolean type) {
+        naviEmulatorEnable = type;
+        LocationConfig.setNaviEmulator(type);
+    }
+
+    /**
+     * 设置定位监听器
+     * @param listener
+     */
+    public void setLocationListener(LocationListener listener) {
+        locationListener = listener;
+    }
+
+    /**
+     * 高德API的定位回调方法
+     * 成功，返回定位的GPS数据，
+     * 失败，则返回空数据
      *
      * @param aMapLocation
      */
     @Override
     public void onLocationChanged(AMapLocation aMapLocation) {
-        Log.d(TAG, "onLocationChanged");
+//        Log.d(TAG, "onLocationChanged");
         if ((aMapLocation != null) && (aMapLocation.getErrorCode() == 0)) {
-            GpsBean locationGps;
+            GpsData locationGps;
             if (mockLocationEnable && mockGps != null) {
                 locationGps = mockGps;
             } else {
-                locationGps = new GpsBean();
+                locationGps = new GpsData();
                 locationGps.setLatitude(aMapLocation.getLatitude());
                 locationGps.setLongitude(aMapLocation.getLongitude());
                 locationGps.setBearing(aMapLocation.getBearing());
             }
             //回调
-            if(locationListener != null) {
-                locationListener.updateGpsData(locationGps);
-            }
+            updateLocationGpsData(locationGps);
         } else {
             Log.e(TAG, "定位错误：" + aMapLocation);
+            //失败返回空数据
+            updateLocationGpsData(null);
         }
     }
 
-    private static LocationHelper locationHelper;
+    private static int count = 0;
+    private void updateLocationGpsData(GpsData gpsData) {
+        if(locationListener == null) {
+            Log.e(TAG, "locationListener is null");
+            return;
+        }
+        // 模拟导航中的经纬度上传， 十个传1个
+        if (naviEmulatorEnable) {
+            if (count % 10 == 0) {
+                count = 0;
+                Log.d(TAG, "sendGps, count " + count);
+                locationListener.updateGpsData(gpsData);
+            }
+            count++;
+        } else {
+            Log.d(TAG, "sendGps");
+            locationListener.updateGpsData(gpsData);
+        }
+    }
 
     public void startLocation() {
 //        locationHelper = LocationHelper.getInstance();
 //        locationHelper.initLocation(mContext, this);
-
         locationHelper.startLocation();
-
         locationHelper.enableBackgroundLocation(2001, buildNotification());
     }
 
@@ -113,7 +154,11 @@ public class DeviceLocationManager implements AMapLocationListener {
     private static final String NOTIFICATION_CHANNEL_NAME = "BackgroundLocation";
     private NotificationManager notificationManager = null;
     boolean isCreateChannel = false;
-
+    /**
+     * 针对8.0以后版本，将定位服务设置横前台服务，以防止服务被后台杀掉。
+     *
+     * @return
+     */
     @SuppressLint("NewApi")
     private Notification buildNotification() {
 

@@ -1,6 +1,6 @@
 package com.aibus.aibus_location.data;
 
-public class GpsBean {
+public class GpsData {
     private double latitude;
     private double longitude;
     private float bearing;

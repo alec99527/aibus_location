@@ -7,8 +7,8 @@ public class LocationConfig {
     private static final String TAG = "LocationConfig";
 
     private final static String KEY_NAVI_EMULATOR_ENABLE = "navi_emulator_enable";
-    private final static String KEY_LOCATION_SIMULATE_ENABLE = "location_simulate_enable";
-    private final static String KEY_LOCATION_SIMULATE_DETAIL = "location_simulate_detail";
+    private final static String KEY_LOCATION_SIMULATE_ENABLE = "location_mock_enable";
+    private final static String KEY_LOCATION_SIMULATE_DETAIL = "location_mock_detail";
 
 
     public static void enableMockLocation(boolean enable) {
@@ -70,11 +70,9 @@ public class LocationConfig {
         Log.d(TAG, "setNaviEmulator enable:" + enable);
         if (enable) {
             SharedPreferenceUtil.setCache(KEY_NAVI_EMULATOR_ENABLE, "1");
-            NaviConfig.setNaviEmulatorStatus(true);
             Log.d(TAG, "模拟导航开启");
         } else {
             SharedPreferenceUtil.setCache(KEY_NAVI_EMULATOR_ENABLE, "0");
-            NaviConfig.setNaviEmulatorStatus(false);
             Log.d(TAG, "模拟导航关闭");
         }
     }

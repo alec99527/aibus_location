@@ -17,6 +17,8 @@ import java.util.HashSet;
  */
 public class LocationHelper implements AMapLocationListener {
     private static final String TAG = "LocationHelper";
+    private static final long LOCATION_INTERVAL_TIME = 5000; //默认5秒定位一次
+
     //声明mlocationClient对象
     public AMapLocationClient mlocationClient;
     //声明mLocationOption对象
@@ -37,7 +39,7 @@ public class LocationHelper implements AMapLocationListener {
     }
 
     public void initLocation(Context context, AMapLocationListener listener) {
-        Log.d(TAG, "startLocate");
+        Log.d(TAG, "initLocation");
         mlocationClient = new AMapLocationClient(context);
 
         //初始化定位参数
@@ -48,7 +50,7 @@ public class LocationHelper implements AMapLocationListener {
         //设置定位模式为高精度模式，Battery_Saving为低功耗模式，Device_Sensors是仅设备模式
         mLocationOption.setLocationMode(AMapLocationClientOption.AMapLocationMode.Hight_Accuracy);
         //设置定位间隔,单位毫秒,默认为5000ms
-        mLocationOption.setInterval(5000);
+        mLocationOption.setInterval(LOCATION_INTERVAL_TIME);
 
         //设置定位参数
         mlocationClient.setLocationOption(mLocationOption);
