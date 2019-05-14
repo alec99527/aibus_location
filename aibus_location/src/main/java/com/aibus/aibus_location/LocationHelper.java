@@ -59,7 +59,11 @@ public class LocationHelper implements AMapLocationListener {
 
     public void setInterval(long time ){
         //设置定位间隔,单位毫秒,默认为5000ms
-        mLocationOption.setInterval(time);
+        if(mlocationClient != null && mLocationOption != null){
+            mLocationOption.setInterval(time);
+            //设置定位参数
+            mlocationClient.setLocationOption(mLocationOption);
+        }
     }
 
     public void startLocation() {
