@@ -14,7 +14,7 @@ import com.amap.api.location.AMapLocationListener;
 
 
 public class DeviceLocationManager implements AMapLocationListener {
-    private static final String TAG = "LocationService";
+    private static final String TAG = "DeviceLocationManager";
     private Context mContext;
     private int interval = 10;
     private Boolean mockLocationEnable = false;
@@ -58,6 +58,10 @@ public class DeviceLocationManager implements AMapLocationListener {
         mockLocationEnable = mock;
     }
 
+    public void setLocationListener(LocationListener listener){
+        locationListener = listener;
+
+    }
     /**
      * 定位回调方法
      *
@@ -65,6 +69,7 @@ public class DeviceLocationManager implements AMapLocationListener {
      */
     @Override
     public void onLocationChanged(AMapLocation aMapLocation) {
+        Log.d(TAG, "onLocationChanged");
         if ((aMapLocation != null) && (aMapLocation.getErrorCode() == 0)) {
             GpsBean locationGps;
             if (mockLocationEnable && mockGps != null) {
@@ -76,7 +81,9 @@ public class DeviceLocationManager implements AMapLocationListener {
                 locationGps.setBearing(aMapLocation.getBearing());
             }
             //回调
-            locationListener.updateGpsData(locationGps);
+            if(locationListener != null) {
+                locationListener.updateGpsData(locationGps);
+            }
         } else {
             Log.e(TAG, "定位错误：" + aMapLocation);
         }
