@@ -24,7 +24,7 @@ allprojects {
 ```
 
 3.
-### 基本用法
+#### 基本用法
 1）获取实列
 2）初始化
 3）设置定位监听。
@@ -42,7 +42,7 @@ deviceLocationManager.setLocationListener(new LocationListener() {
 deviceLocationManager.startLocation();
 ```
 
-### 其他功能
+#### 扩展功能
 1. 设置模拟定位
 1）设置模拟定位的GPS坐标
 2）使能模拟定位
@@ -55,12 +55,12 @@ deviceLocationManager.setMockLocationGps(gpsBean);
 deviceLocationManager.setMockLocationEnable(true);
 ```
 
-2. 设置定位间隔，单位为ms。此功能需要在调用startLocation方法前设置才有效。
+2. 设置定位间隔，单位为ms，最小间隔为1000ms。此功能需要在调用startLocation方法前设置才有效。
 ```
 deviceLocationManager.setInterval(1000);
 ```
 
-3. 是否为模拟导航(模拟导航的模式下，会降低GPS位置上报的频率，以免上报的太频繁)
+3. 设置是否为模拟导航(模拟导航的模式下，会降低GPS位置上报的频率，以免上报的太频繁)
 ```
 deviceLocationManager.setNaviEmulatorEnable(true);
 ```
