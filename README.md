@@ -55,7 +55,7 @@ deviceLocationManager.setMockLocationGps(gpsBean);
 deviceLocationManager.setMockLocationEnable(true);
 ```
 
-2. 设置定位间隔，单位为ms
+2. 设置定位间隔，单位为ms。此功能需要在调用startLocation方法前设置才有效。
 ```
 deviceLocationManager.setInterval(1000);
 ```
